@@ -85,17 +85,17 @@ cloudflared tunnel login
 # トンネルを作成
 cloudflared tunnel create panel-cloudru
 # ↑ 成功すると以下のような出力が表示されます:
-# Created tunnel panel-cloudru with id 515d3a99-e74c-4312-a85c-feab39c95128
-# このUUID（515d3a99-...）を次のステップで使用します
+# Created tunnel panel-cloudru with id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# このUUID（xxxxxxxx-xxxx-...）を次のステップで使用します
 
 # 資格情報ファイルの場所を確認
 ls -la ~/.cloudflared/*.json
-# ↑ /root/.cloudflared/515d3a99-e74c-4312-a85c-feab39c95128.json のようなファイルが作成されています
+# ↑ /root/.cloudflared/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.json のようなファイルが作成されています
 
 # DNS ルートを作成（panel.cloudru.jp をトンネルに紐付け）
 cloudflared tunnel route dns panel-cloudru panel.cloudru.jp
 # ↑ Cloudflare DNS に自動的に CNAME レコードが追加されます
-# panel.cloudru.jp → 515d3a99-e74c-4312-a85c-feab39c95128.cfargotunnel.com
+# panel.cloudru.jp → xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.cfargotunnel.com
 
 # DNS レコード作成を確認
 # Cloudflare ダッシュボード → cloudru.jp → DNS → Records
@@ -212,7 +212,7 @@ sudo mysql_secure_installation
 # 注意: パスワードに特殊文字（#, $, !, @ など）が含まれる場合は要注意
 sudo mysql -u root -p <<'SQL'
 CREATE DATABASE pterodactyl;
-CREATE USER 'ptero'@'localhost' IDENTIFIED BY '#ehLqrZECk2w2GL$5iLV';
+CREATE USER 'ptero'@'localhost' IDENTIFIED BY 'P@ssw0rd!Example#123';
 GRANT ALL PRIVILEGES ON pterodactyl.* TO 'ptero'@'localhost';
 FLUSH PRIVILEGES;
 SQL
@@ -223,8 +223,8 @@ sudo mysql -u root -p -e "SELECT User, Host FROM mysql.user WHERE User='ptero';"
 # ↑ pterodactyl データベースと ptero@localhost ユーザーが表示されればOK
 
 # 作成したユーザーで接続テスト
-mysql -u ptero -p pterodactyl -e "SELECT 1;"
-# ↑ パスワード入力後、"1" が表示されれば接続成功
+mysql -u ptero -p'P@ssw0rd!Example#123' pterodactyl -e "SELECT 1;"
+# ↑ "1" が表示されれば接続成功
 ```
 
 ---
@@ -299,8 +299,8 @@ DB_DATABASE=pterodactyl
 DB_USERNAME=ptero
 # ★重要★ パスワードに特殊文字（#, $, !, @など）が含まれる場合は
 # ダブルクォーテーションで囲んでください
-# 例: DB_PASSWORD="#ehLqrZECk2w2GL$5iLV"
-DB_PASSWORD="#ehLqrZECk2w2GL$5iLV"
+# 例: DB_PASSWORD="P@ssw0rd!Example#123"
+DB_PASSWORD="P@ssw0rd!Example#123"
 
 # Redis（キャッシュ・セッション・キュー用）
 REDIS_HOST=127.0.0.1
@@ -326,8 +326,8 @@ MAIL_FROM_NAME="Pterodactyl"
 
 1. **DB_PASSWORD の引用符**
    - パスワードに `#`, `$`, `!`, `@`, スペースなどの特殊文字が含まれる場合は、必ずダブルクォーテーションで囲んでください
-   - 悪い例: `DB_PASSWORD=#ehLqrZECk2w2GL$5iLV` ← # がコメントとして扱われる
-   - 良い例: `DB_PASSWORD="#ehLqrZECk2w2GL$5iLV"` ← 正しく解釈される
+   - 悪い例: `DB_PASSWORD=P@ssw0rd!Example#123` ← # がコメントとして扱われる
+   - 良い例: `DB_PASSWORD="P@ssw0rd!Example#123"` ← 正しく解釈される
 
 2. **APP_URL の設定**
    - Cloudflare Tunnel を使用する場合は `https://panel.cloudru.jp` を設定
@@ -358,14 +358,14 @@ php artisan migrate --seed --force
 # → .env の DB_PASSWORD が正しく読み込まれていません
 # 対処法:
 # 1. パスワードをダブルクォーテーションで囲む
-#    sed -i 's/^DB_PASSWORD=.*$/DB_PASSWORD="#ehLqrZECk2w2GL$5iLV"/' .env
+#    sed -i 's/^DB_PASSWORD=.*$/DB_PASSWORD="P@ssw0rd!Example#123"/' .env
 # 2. 設定キャッシュをクリア
 #    php artisan config:clear
 # 3. 再度マイグレーション実行
 #    php artisan migrate --seed --force
 
 # データベースにテーブルが作成されたか確認
-mysql -u ptero -p"#ehLqrZECk2w2GL\$5iLV" pterodactyl -e "SHOW TABLES;"
+mysql -u ptero -p'P@ssw0rd!Example#123' pterodactyl -e "SHOW TABLES;"
 # ↑ 多数のテーブル（users, servers, nodes など）が表示されればOK
 
 # 3. ストレージディレクトリへのシンボリックリンク作成
@@ -403,19 +403,19 @@ php artisan p:user:make
 # → yes と入力
 #
 # Email Address:
-# → yuzuto.poi@gmail.com（お好きなメールアドレス）
+# → admin@example.com（お好きなメールアドレス）
 #
 # Username:
-# → yuzu（お好きなユーザー名）
+# → adminuser（お好きなユーザー名）
 #
 # First Name:
-# → Yuzu（名前）
+# → Admin（名前）
 #
 # Last Name:
-# → Admin（姓）
+# → User（姓）
 #
 # Password:
-# → YuzuAdmin123（大文字・数字を含む8文字以上）
+# → AdminPass123（大文字・数字を含む8文字以上）
 #
 # パスワード要件:
 # - 8文字以上
@@ -423,7 +423,7 @@ php artisan p:user:make
 # - 数字を最低1文字含む
 
 # ユーザーが作成されたか確認
-mysql -u ptero -p"#ehLqrZECk2w2GL\$5iLV" pterodactyl -e "SELECT id, username, email, root_admin FROM users;"
+mysql -u ptero -p'P@ssw0rd!Example#123' pterodactyl -e "SELECT id, username, email, root_admin FROM users;"
 # ↑ 作成したユーザーが表示され、root_admin が 1 になっていればOK
 ```
 
@@ -451,7 +451,7 @@ php artisan p:user:make
 php artisan tinker
 
 # Tinker 内で以下を実行（>>> プロンプトで入力）:
-$user = \Pterodactyl\Models\User::where('email', 'yuzuto.poi@gmail.com')->first();
+$user = \Pterodactyl\Models\User::where('email', 'admin@example.com')->first();
 $user->password = bcrypt('NewPassword123');
 $user->save();
 exit
@@ -467,7 +467,7 @@ php -r "echo password_hash('NewPassword123', PASSWORD_BCRYPT) . PHP_EOL;"
 # ↑ 生成されたハッシュ値をコピー
 
 # MySQL でパスワードを更新
-mysql -u ptero -p"#ehLqrZECk2w2GL\$5iLV" pterodactyl -e "UPDATE users SET password='生成したハッシュ値' WHERE email='yuzuto.poi@gmail.com';"
+mysql -u ptero -p'P@ssw0rd!Example#123' pterodactyl -e "UPDATE users SET password='生成したハッシュ値' WHERE email='admin@example.com';"
 ```
 
 ---
@@ -650,7 +650,7 @@ sudo journalctl -u pteroq -n 50
 1. ブラウザで **https://panel.cloudru.jp** にアクセス
 2. Pterodactyl のログイン画面が表示されることを確認
 3. 作成した管理者ユーザーでログイン:
-   - **ユーザー名またはメール**: `yuzu` または `yuzuto.poi@gmail.com`
+   - **ユーザー名またはメール**: `adminuser` または `admin@example.com`
    - **パスワード**: 作成時に設定したパスワード
 
 4. ログイン成功後、以下を確認:
@@ -1100,7 +1100,7 @@ DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p $BACKUP_DIR
 
 # データベースバックアップ
-mysqldump -u ptero -p'#ehLqrZECk2w2GL$5iLV' pterodactyl | gzip > $BACKUP_DIR/pterodactyl_db_$DATE.sql.gz
+mysqldump -u ptero -p'your_database_password' pterodactyl | gzip > $BACKUP_DIR/pterodactyl_db_$DATE.sql.gz
 
 # アプリケーションバックアップ
 tar -czf $BACKUP_DIR/pterodactyl_app_$DATE.tar.gz /var/www/pterodactyl
@@ -1199,7 +1199,7 @@ sudo mkdir -p /backup/pterodactyl
 DATE=$(date +%Y%m%d_%H%M%S)
 
 # 1. データベースのバックアップ
-sudo mysqldump -u ptero -p"#ehLqrZECk2w2GL\$5iLV" pterodactyl | gzip > /backup/pterodactyl/pterodactyl_db_$DATE.sql.gz
+sudo mysqldump -u ptero -p'your_database_password' pterodactyl | gzip > /backup/pterodactyl/pterodactyl_db_$DATE.sql.gz
 
 # 2. アプリケーションファイルのバックアップ
 sudo tar -czf /backup/pterodactyl/pterodactyl_app_$DATE.tar.gz \
@@ -1247,7 +1247,7 @@ log "=== Pterodactyl Panel Backup Start ==="
 
 # 1. データベースバックアップ
 log "Backing up database..."
-mysqldump -u ptero -p'#ehLqrZECk2w2GL$5iLV' pterodactyl | gzip > $BACKUP_DIR/pterodactyl_db_$DATE.sql.gz
+mysqldump -u ptero -p'your_database_password' pterodactyl | gzip > $BACKUP_DIR/pterodactyl_db_$DATE.sql.gz
 log "Database backup completed: pterodactyl_db_$DATE.sql.gz"
 
 # 2. アプリケーションバックアップ
@@ -1310,7 +1310,7 @@ sudo crontab -l
 RESTORE_DATE="20260208_030000"  # バックアップファイルの日付
 
 # 1. データベースを復元
-gunzip < /backup/pterodactyl/pterodactyl_db_$RESTORE_DATE.sql.gz | mysql -u ptero -p'#ehLqrZECk2w2GL$5iLV' pterodactyl
+gunzip < /backup/pterodactyl/pterodactyl_db_$RESTORE_DATE.sql.gz | mysql -u ptero -p'your_database_password' pterodactyl
 
 # 2. アプリケーションファイルを復元
 cd /
@@ -1442,11 +1442,11 @@ php artisan view:clear
 grep "DB_PASSWORD" /var/www/pterodactyl/.env
 
 # パスワードに特殊文字（#, $, !, @など）が含まれる場合は引用符で囲む
-# 悪い例: DB_PASSWORD=#ehLqrZECk2w2GL$5iLV
-# 良い例: DB_PASSWORD="#ehLqrZECk2w2GL$5iLV"
+# 悪い例: DB_PASSWORD=P@ssw0rd!Example#123
+# 良い例: DB_PASSWORD="P@ssw0rd!Example#123"
 
 # 自動修正（パスワードを実際の値に置き換えてください）
-sed -i 's/^DB_PASSWORD=.*$/DB_PASSWORD="#ehLqrZECk2w2GL$5iLV"/' /var/www/pterodactyl/.env
+sed -i 's/^DB_PASSWORD=.*$/DB_PASSWORD="your_actual_password"/' /var/www/pterodactyl/.env
 
 # 設定キャッシュをクリア
 php artisan config:clear
@@ -1539,7 +1539,7 @@ yaml: line 6: mapping values are not allowed in this context
 ```yaml
 # 正しい例
 tunnel: panel-cloudru
-credentials-file: /root/.cloudflared/515d3a99-e74c-4312-a85c-feab39c95128.json
+credentials-file: /root/.cloudflared/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.json
 ingress:
   - hostname: panel.cloudru.jp
     service: http://127.0.0.1:80
